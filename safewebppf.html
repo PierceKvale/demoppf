@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SafeWebsite Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --surface2: #18181f;
+      --border: rgba(255,255,255,0.07);
+      --accent: #00e5a0;
+      --accent2: #0099ff;
+      --text: #f0f0f5;
+      --muted: #888899;
+      --heading: 'Syne', sans-serif;
+      --body: 'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--body);
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px;
+      height: 70px;
+      background: rgba(10,10,15,0.88);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: var(--heading);
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      text-decoration: none;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .nav-logo .dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; display:inline-block; }
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+    .nav-links a {
+      color: var(--muted); text-decoration: none;
+      font-size: 0.88rem; font-weight: 500; letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); }
+    .nav-cta {
+      background: var(--accent); color: #000;
+      font-family: var(--heading); font-weight: 700;
+      font-size: 0.85rem; padding: 10px 22px;
+      border-radius: 6px; text-decoration: none;
+      letter-spacing: 0.02em; transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+    .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; }
+    .hamburger span { width:24px; height:2px; background:var(--text); border-radius:2px; transition: all 0.3s; }
+
+    /* ── PAGES ── */
+    .page { display: none; padding-top: 70px; min-height: 100vh; }
+    .page.active { display: block; }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; overflow: hidden;
+      min-height: calc(100vh - 70px);
+      display: flex; align-items: center;
+      padding: 80px 48px;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 60% at 70% 40%, rgba(0,229,160,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 50% at 20% 80%, rgba(0,153,255,0.07) 0%, transparent 55%),
+        var(--bg);
+    }
+    .hero-grid {
+      position: absolute; inset: 0; opacity: 0.035;
+      background-image: linear-gradient(var(--accent) 1px, transparent 1px),
+                        linear-gradient(90deg, var(--accent) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .hero-content { position: relative; max-width: 680px; animation: fadeUp 0.9s ease both; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(0,229,160,0.08); border: 1px solid rgba(0,229,160,0.2);
+      color: var(--accent); font-size: 0.8rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 6px 14px; border-radius: 50px; margin-bottom: 28px;
+    }
+    .hero-badge::before { content:''; width:6px; height:6px; background:var(--accent); border-radius:50%; }
+    .hero h1 {
+      font-family: var(--heading); font-size: clamp(2.8rem, 6vw, 5.2rem);
+      font-weight: 800; line-height: 1.05; letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p {
+      font-size: 1.15rem; color: var(--muted); max-width: 520px;
+      line-height: 1.75; margin-bottom: 40px; font-weight: 300;
+    }
+    .hero-actions { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent); color: #000;
+      font-family: var(--heading); font-weight: 700;
+      padding: 14px 32px; border-radius: 8px;
+      text-decoration: none; font-size: 0.95rem;
+      transition: transform 0.2s, opacity 0.2s;
+      letter-spacing: 0.01em;
+    }
+    .btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
+    .btn-ghost {
+      border: 1px solid var(--border); color: var(--text);
+      font-family: var(--heading); font-weight: 600;
+      padding: 14px 32px; border-radius: 8px;
+      text-decoration: none; font-size: 0.95rem;
+      transition: border-color 0.2s, background 0.2s;
+      letter-spacing: 0.01em; cursor: pointer; background: transparent;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.04); }
+
+    /* Stats bar */
+    .stats-bar {
+      display: flex; gap: 0;
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      margin: 0 48px;
+    }
+    .stat-item {
+      flex: 1; padding: 36px 40px;
+      border-right: 1px solid var(--border);
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-number {
+      font-family: var(--heading); font-size: 2.4rem;
+      font-weight: 800; letter-spacing: -0.03em;
+      color: var(--text); line-height: 1;
+    }
+    .stat-number span { color: var(--accent); }
+    .stat-label { color: var(--muted); font-size: 0.85rem; margin-top: 6px; font-weight: 400; }
+
+    /* ── SERVICES SECTION ── */
+    .section { padding: 100px 48px; }
+    .section-label {
+      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: var(--heading); font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800; letter-spacing: -0.03em; line-height: 1.1;
+      max-width: 520px; margin-bottom: 64px;
+    }
+    .section-title em { font-style:normal; color: var(--accent); }
+
+    .services-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2px; background: var(--border);
+      border: 1px solid var(--border);
+    }
+    .service-card {
+      background: var(--surface);
+      padding: 48px 40px; cursor: pointer;
+      transition: background 0.25s;
+      position: relative; overflow: hidden;
+    }
+    .service-card::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: var(--accent); transform: scaleX(0);
+      transition: transform 0.3s; transform-origin: left;
+    }
+    .service-card:hover { background: var(--surface2); }
+    .service-card:hover::after { transform: scaleX(1); }
+    .service-icon {
+      width: 48px; height: 48px; border-radius: 10px;
+      background: rgba(0,229,160,0.1); border: 1px solid rgba(0,229,160,0.15);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 24px; font-size: 1.4rem;
+    }
+    .service-card h3 {
+      font-family: var(--heading); font-size: 1.2rem;
+      font-weight: 700; margin-bottom: 12px; letter-spacing: -0.01em;
+    }
+    .service-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.7; font-weight: 300; }
+    .service-arrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      color: var(--accent); font-size: 0.82rem; font-weight: 600;
+      margin-top: 20px; letter-spacing: 0.04em; text-transform: uppercase;
+    }
+
+    /* ── FEATURED SECTION ── */
+    .featured {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2px; background: var(--border);
+      margin: 0 48px 100px;
+      border: 1px solid var(--border);
+    }
+    .featured-visual {
+      background: var(--surface2); position: relative; overflow: hidden;
+      min-height: 480px; display: flex; align-items: flex-end; padding: 48px;
+    }
+    .featured-visual-bg {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(0,229,160,0.07) 0%, rgba(0,153,255,0.06) 100%);
+    }
+    .featured-visual-circle {
+      position: absolute; width: 300px; height: 300px;
+      border-radius: 50%; top: 40px; right: -60px;
+      background: radial-gradient(circle, rgba(0,229,160,0.15) 0%, transparent 70%);
+    }
+    .featured-visual-text {
+      position: relative; font-family: var(--heading);
+      font-size: 5rem; font-weight: 800; letter-spacing: -0.04em;
+      line-height: 0.9; color: rgba(255,255,255,0.06);
+      pointer-events: none; user-select: none;
+    }
+    .featured-info { background: var(--surface); padding: 64px; display: flex; flex-direction: column; justify-content: center; }
+    .featured-info h2 {
+      font-family: var(--heading); font-size: 2.2rem;
+      font-weight: 800; letter-spacing: -0.03em;
+      margin-bottom: 20px; line-height: 1.1;
+    }
+    .featured-info p { color: var(--muted); line-height: 1.8; margin-bottom: 32px; font-weight: 300; }
+    .feature-list { list-style: none; margin-bottom: 40px; }
+    .feature-list li {
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+      color: var(--muted); font-size: 0.9rem;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .feature-list li::before {
+      content: ''; width: 6px; height: 6px;
+      background: var(--accent); border-radius: 50%; flex-shrink: 0;
+    }
+
+    /* ── TESTIMONIAL ── */
+    .testimonial-section { padding: 100px 48px; background: var(--surface); }
+    .testimonials-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-top: 64px; }
+    .testimonial-card {
+      background: var(--bg); border: 1px solid var(--border);
+      padding: 36px; border-radius: 4px;
+    }
+    .stars { color: var(--accent); font-size: 1rem; margin-bottom: 18px; letter-spacing: 2px; }
+    .testimonial-card blockquote {
+      font-size: 0.95rem; line-height: 1.75; color: var(--text);
+      font-weight: 300; margin-bottom: 24px;
+    }
+    .reviewer { display: flex; align-items: center; gap: 12px; }
+    .reviewer-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem; color: #000;
+      flex-shrink: 0;
+    }
+    .reviewer-name { font-weight: 600; font-size: 0.9rem; }
+    .reviewer-role { color: var(--muted); font-size: 0.8rem; }
+
+    /* ── CONTACT PAGE ── */
+    .contact-layout {
+      display: grid; grid-template-columns: 1fr 1.4fr;
+      gap: 0; min-height: calc(100vh - 70px);
+    }
+    .contact-info-panel {
+      background: var(--surface); padding: 80px 60px;
+      border-right: 1px solid var(--border);
+    }
+    .contact-info-panel h1 {
+      font-family: var(--heading); font-size: 3rem;
+      font-weight: 800; letter-spacing: -0.03em; line-height: 1.05;
+      margin-bottom: 20px;
+    }
+    .contact-info-panel h1 em { font-style:normal; color: var(--accent); }
+    .contact-info-panel > p { color: var(--muted); line-height: 1.75; margin-bottom: 56px; font-weight: 300; }
+    .info-block { margin-bottom: 36px; }
+    .info-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 8px;
+    }
+    .info-value { font-size: 1rem; font-weight: 500; }
+    .info-value a { color: var(--text); text-decoration: none; }
+    .info-value a:hover { color: var(--accent); }
+
+    .contact-form-panel { padding: 80px 60px; }
+    .contact-form-panel h2 {
+      font-family: var(--heading); font-size: 1.8rem;
+      font-weight: 800; margin-bottom: 8px; letter-spacing: -0.02em;
+    }
+    .contact-form-panel > p { color: var(--muted); margin-bottom: 48px; font-weight: 300; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-group { margin-bottom: 24px; }
+    .form-group label {
+      display: block; font-size: 0.82rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 10px;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%; background: var(--surface); border: 1px solid var(--border);
+      color: var(--text); font-family: var(--body); font-size: 0.95rem;
+      padding: 14px 18px; border-radius: 6px; outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--accent); }
+    .form-group select { appearance: none; cursor: pointer; }
+    .form-group select option { background: var(--surface2); }
+    .form-group textarea { min-height: 130px; resize: vertical; }
+    .form-submit {
+      width: 100%; background: var(--accent); color: #000;
+      font-family: var(--heading); font-weight: 700; font-size: 1rem;
+      padding: 16px 32px; border: none; border-radius: 8px;
+      cursor: pointer; letter-spacing: 0.01em;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .form-submit:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .success-msg {
+      display:none; background: rgba(0,229,160,0.08);
+      border: 1px solid rgba(0,229,160,0.25); color: var(--accent);
+      padding: 18px 24px; border-radius: 6px; margin-top: 20px;
+      font-size: 0.95rem; text-align: center;
+    }
+
+    /* ── SERVICES PAGE ── */
+    .services-page-hero {
+      background: var(--surface); padding: 80px 48px 60px;
+      border-bottom: 1px solid var(--border);
+    }
+    .services-page-hero h1 {
+      font-family: var(--heading); font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 800; letter-spacing: -0.03em;
+    }
+    .services-page-hero h1 em { font-style:normal; color:var(--accent); }
+    .services-page-hero p { color: var(--muted); max-width: 520px; margin-top: 16px; font-weight: 300; line-height: 1.75; }
+    .services-detail { padding: 80px 48px; }
+    .service-detail-card {
+      display: grid; grid-template-columns: 1fr 1.5fr;
+      gap: 0; background: var(--border); margin-bottom: 2px;
+    }
+    .service-detail-card:nth-child(even) { direction: rtl; }
+    .service-detail-card:nth-child(even) > * { direction: ltr; }
+    .service-detail-visual {
+      background: var(--surface2);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 320px; font-size: 4rem;
+      position: relative; overflow: hidden;
+    }
+    .service-detail-visual .big-icon {
+      font-size: 6rem; opacity: 0.15; position: absolute;
+    }
+    .service-detail-visual .main-icon { position: relative; z-index: 1; font-size: 3.5rem; }
+    .service-detail-body { background: var(--surface); padding: 56px; }
+    .service-detail-body h2 {
+      font-family: var(--heading); font-size: 1.8rem;
+      font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px;
+    }
+    .service-detail-body p { color: var(--muted); line-height: 1.8; font-weight: 300; margin-bottom: 24px; }
+    .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+    .tag {
+      background: rgba(0,229,160,0.07); border: 1px solid rgba(0,229,160,0.15);
+      color: var(--accent); font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      padding: 5px 12px; border-radius: 50px;
+    }
+
+    /* ── ABOUT PAGE ── */
+    .about-hero {
+      padding: 100px 48px 80px;
+      border-bottom: 1px solid var(--border);
+      position: relative; overflow: hidden;
+    }
+    .about-hero-bg {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(0,153,255,0.06) 0%, transparent 60%);
+    }
+    .about-hero h1 {
+      font-family: var(--heading); font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 800; letter-spacing: -0.03em; position: relative;
+      max-width: 700px; line-height: 1.05; margin-bottom: 24px;
+    }
+    .about-hero h1 em { font-style:normal; color: var(--accent); }
+    .about-hero p { color: var(--muted); max-width: 540px; line-height: 1.8; position: relative; font-weight: 300; font-size: 1.05rem; }
+    .about-content { padding: 80px 48px; }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; margin-bottom: 80px; }
+    .about-col h2 {
+      font-family: var(--heading); font-size: 1.8rem; font-weight: 800;
+      letter-spacing: -0.02em; margin-bottom: 20px;
+    }
+    .about-col p { color: var(--muted); line-height: 1.85; font-weight: 300; }
+    .values-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2px; background: var(--border); }
+    .value-card {
+      background: var(--surface); padding: 40px 36px;
+    }
+    .value-number {
+      font-family: var(--heading); font-size: 3rem; font-weight: 800;
+      color: rgba(0,229,160,0.15); letter-spacing: -0.04em;
+      margin-bottom: 12px; line-height: 1;
+    }
+    .value-card h3 {
+      font-family: var(--heading); font-size: 1.1rem; font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .value-card p { color: var(--muted); font-size: 0.88rem; line-height: 1.7; font-weight: 300; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--surface); border-top: 1px solid var(--border);
+      padding: 64px 48px 32px;
+    }
+    .footer-top {
+      display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 48px; margin-bottom: 56px;
+    }
+    .footer-brand p { color: var(--muted); font-size: 0.88rem; line-height: 1.75; margin-top: 16px; font-weight: 300; max-width: 260px; }
+    .footer-col h4 {
+      font-family: var(--heading); font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 20px;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 10px; }
+    .footer-col ul li a {
+      color: var(--muted); text-decoration: none; font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .footer-col ul li a:hover { color: var(--text); }
+    .footer-bottom {
+      border-top: 1px solid var(--border); padding-top: 28px;
+      display: flex; align-items: center; justify-content: space-between;
+      color: var(--muted); font-size: 0.82rem;
+    }
+    .footer-bottom a { color: var(--muted); text-decoration: none; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      nav { padding: 0 24px; }
+      .nav-links, .nav-cta { display: none; }
+      .hamburger { display: flex; }
+      .nav-mobile { display: none; position: fixed; top: 70px; left: 0; right: 0; background: var(--surface); border-bottom: 1px solid var(--border); padding: 24px; z-index: 99; }
+      .nav-mobile.open { display: block; }
+      .nav-mobile a { display: block; padding: 12px 0; color: var(--text); text-decoration: none; border-bottom: 1px solid var(--border); font-size: 1rem; }
+
+      .hero { padding: 60px 24px; }
+      .stats-bar { margin: 0 24px; flex-direction: column; }
+      .stat-item { border-right: none; border-bottom: 1px solid var(--border); }
+      .section { padding: 60px 24px; }
+      .featured { margin: 0 24px 60px; grid-template-columns: 1fr; }
+      .contact-layout { grid-template-columns: 1fr; }
+      .contact-info-panel, .contact-form-panel { padding: 48px 24px; }
+      .form-row { grid-template-columns: 1fr; }
+      .service-detail-card { grid-template-columns: 1fr; direction: ltr !important; }
+      .about-grid { grid-template-columns: 1fr; gap: 40px; }
+      .footer-top { grid-template-columns: 1fr 1fr; }
+      .testimonial-section { padding: 60px 24px; }
+      .services-page-hero, .services-detail { padding: 60px 24px; }
+      .about-hero, .about-content { padding: 60px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo" onclick="showPage('home')">
+    <span class="dot"></span> SafeWebsite
+  </a>
+  <ul class="nav-links">
+    <li><a href="#" onclick="showPage('home')" id="nav-home" class="active">Home</a></li>
+    <li><a href="#" onclick="showPage('services')" id="nav-services">Services</a></li>
+    <li><a href="#" onclick="showPage('about')" id="nav-about">About</a></li>
+    <li><a href="#" onclick="showPage('contact')" id="nav-contact">Contact</a></li>
+  </ul>
+  <a href="#" class="nav-cta" onclick="showPage('contact'); return false;">Get a Quote</a>
+  <div class="hamburger" onclick="toggleMobile()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<div class="nav-mobile" id="navMobile">
+  <a href="#" onclick="showPage('home'); toggleMobile()">Home</a>
+  <a href="#" onclick="showPage('services'); toggleMobile()">Services</a>
+  <a href="#" onclick="showPage('about'); toggleMobile()">About</a>
+  <a href="#" onclick="showPage('contact'); toggleMobile()">Contact</a>
+  <a href="#" onclick="showPage('contact'); toggleMobile()" style="color:var(--accent);font-weight:700;">Get a Quote →</a>
+</div>
+
+<!-- ══════════════════════ HOME PAGE ══════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge">Now Serving Greater Houston</div>
+      <h1>Protection &amp; Style<br>for <em>Every Vehicle</em></h1>
+      <p>Premium vinyl wraps, paint protection film, ceramic coatings, and custom detailing — all under one roof. Your car deserves the best.</p>
+      <div class="hero-actions">
+        <a href="#" class="btn-primary" onclick="showPage('contact'); return false;">Get a Free Quote</a>
+        <a href="#" class="btn-ghost" onclick="showPage('services'); return false;">Our Services</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-number">2,400<span>+</span></div>
+      <div class="stat-label">Vehicles Transformed</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">5<span>★</span></div>
+      <div class="stat-label">Average Customer Rating</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">8<span>+</span></div>
+      <div class="stat-label">Years in Business</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">12</div>
+      <div class="stat-label">Expert Technicians</div>
+    </div>
+  </div>
+
+  <!-- Services overview -->
+  <section class="section">
+    <div class="section-label">What We Do</div>
+    <div class="section-title">Everything your vehicle<br><em>needs to shine</em></div>
+    <div class="services-grid">
+      <div class="service-card" onclick="showPage('services')">
+        <div class="service-icon">🎨</div>
+        <h3>Vinyl Wraps</h3>
+        <p>From full-body color changes to custom commercial graphics — we work with exclusive Inozetek and premium vinyl brands.</p>
+        <div class="service-arrow">Learn More →</div>
+      </div>
+      <div class="service-card" onclick="showPage('services')">
+        <div class="service-icon">🛡️</div>
+        <h3>Paint Protection Film</h3>
+        <p>Invisible armor against rock chips, road debris, and everyday wear. Self-healing PPF that keeps your paint showroom-fresh.</p>
+        <div class="service-arrow">Learn More →</div>
+      </div>
+      <div class="service-card" onclick="showPage('services')">
+        <div class="service-icon">✨</div>
+        <h3>Ceramic Coating</h3>
+        <p>Nano-ceramic protection that hydrophobic-seals your paint, repels contaminants, and makes maintenance effortless.</p>
+        <div class="service-arrow">Learn More →</div>
+      </div>
+      <div class="service-card" onclick="showPage('services')">
+        <div class="service-icon">🪟</div>
+        <h3>Window Tinting</h3>
+        <p>Beat the Texas heat with ceramic-grade tint that blocks UV rays, reduces glare, and adds a sleek, polished look.</p>
+        <div class="service-arrow">Learn More →</div>
+      </div>
+      <div class="service-card" onclick="showPage('services')">
+        <div class="service-icon">⚙️</div>
+        <h3>Powder Coating</h3>
+        <p>Transform your wheels and calipers with a durable, chip-resistant powder coat finish in any color imaginable.</p>
+        <div class="service-arrow">Learn More →</div>
+      </div>
+      <div class="service-card" onclick="showPage('contact')">
+        <div class="service-icon">📋</div>
+        <h3>Custom Quotes</h3>
+        <p>Not sure what you need? Tell us about your vehicle and goals — we'll put together a package that fits your budget.</p>
+        <div class="service-arrow">Get a Quote →</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Block -->
+  <div class="featured">
+    <div class="featured-visual">
+      <div class="featured-visual-bg"></div>
+      <div class="featured-visual-circle"></div>
+      <div class="featured-visual-text">FULL<br>WRAP</div>
+    </div>
+    <div class="featured-info">
+      <div class="section-label">Full Vehicle Customization</div>
+      <h2>Thousands of vehicles — flawlessly finished</h2>
+      <p>With over 2,400 vehicles served, our team has the experience and equipment to handle everything from daily drivers to exotics. We don't cut corners — every job is done to the highest standard.</p>
+      <ul class="feature-list">
+        <li>Certified installers with 8+ years of experience</li>
+        <li>Climate-controlled installation suite</li>
+        <li>Manufacturer-backed warranties on all products</li>
+        <li>Free consultation and same-week scheduling</li>
+      </ul>
+      <a href="#" class="btn-primary" onclick="showPage('contact'); return false;">Start Your Project</a>
+    </div>
+  </div>
+
+  <!-- Testimonials -->
+  <section class="testimonial-section">
+    <div class="section-label">Client Reviews</div>
+    <div class="section-title" style="max-width:100%">What our customers <em>are saying</em></div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <blockquote>"Absolute perfection from start to finish. Got a full matte black wrap on my truck — couldn't be happier. The attention to detail is unmatched."</blockquote>
+        <div class="reviewer">
+          <div class="reviewer-avatar">JR</div>
+          <div>
+            <div class="reviewer-name">James R.</div>
+            <div class="reviewer-role">Full Vinyl Wrap</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <blockquote>"Had PPF and ceramic coating done together. The team was professional, communication was great, and my car looks incredible. Would 100% recommend."</blockquote>
+        <div class="reviewer">
+          <div class="reviewer-avatar">SM</div>
+          <div>
+            <div class="reviewer-name">Sofia M.</div>
+            <div class="reviewer-role">PPF + Ceramic Coating</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★★★★★</div>
+        <blockquote>"Finally found a shop that does everything in one place. The tint job is perfect and my wheels look brand new after the powder coat. Super happy."</blockquote>
+        <div class="reviewer">
+          <div class="reviewer-avatar">DL</div>
+          <div>
+            <div class="reviewer-name">David L.</div>
+            <div class="reviewer-role">Tint + Powder Coating</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" onclick="showPage('home')" style="font-size:1.1rem;">
+          <span class="dot"></span> SafeWebsite Demo
+        </a>
+        <p>Houston's premier vehicle customization studio. We protect, style, and transform vehicles with precision and passion.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="#" onclick="showPage('services')">Vinyl Wraps</a></li>
+          <li><a href="#" onclick="showPage('services')">PPF</a></li>
+          <li><a href="#" onclick="showPage('services')">Ceramic Coating</a></li>
+          <li><a href="#" onclick="showPage('services')">Window Tinting</a></li>
+          <li><a href="#" onclick="showPage('services')">Powder Coating</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#" onclick="showPage('about')">About Us</a></li>
+          <li><a href="#" onclick="showPage('contact')">Contact</a></li>
+          <li><a href="#" onclick="showPage('contact')">Get a Quote</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Hours</h4>
+        <ul>
+          <li><a href="#">Mon–Fri: 10am–6pm</a></li>
+          <li><a href="#">Sat–Sun: Closed</a></li>
+          <li style="margin-top:16px;"><a href="#">Houston, TX</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 SafeWebsite Demo. All rights reserved.</span>
+      <span>Built for demonstration purposes.</span>
+    </div>
+  </footer>
+
+</div>
+
+<!-- ══════════════════════ SERVICES PAGE ══════════════════════ -->
+<div class="page" id="page-services">
+
+  <div class="services-page-hero">
+    <div class="section-label">What We Offer</div>
+    <h1>Our <em>Services</em></h1>
+    <p>From full vehicle wraps to invisible paint protection — every service is installed by our certified technicians in our climate-controlled facility.</p>
+  </div>
+
+  <div class="services-detail">
+    <div class="service-detail-card">
+      <div class="service-detail-visual">
+        <div class="big-icon">🎨</div>
+        <div class="main-icon">🎨</div>
+      </div>
+      <div class="service-detail-body">
+        <div class="section-label">Service 01</div>
+        <h2>Vinyl Wraps</h2>
+        <p>Give your vehicle a completely new look without the commitment of a repaint. Our vinyl wraps are applied with precision, leaving no bubbles, no lifted edges, and no evidence of a seam. We carry exclusive Inozetek films along with 3M, Avery Dennison, and more.</p>
+        <p>Whether you're looking for a matte color change, a chrome finish, or full commercial fleet graphics — we handle it all.</p>
+        <div class="tag-list">
+          <span class="tag">Color Change</span>
+          <span class="tag">Commercial Fleet</span>
+          <span class="tag">Chrome & Satin</span>
+          <span class="tag">Inozetek Premium</span>
+        </div>
+        <br><a href="#" class="btn-primary" onclick="showPage('contact'); return false;" style="display:inline-block; margin-top:12px;">Get a Quote</a>
+      </div>
+    </div>
+
+    <div class="service-detail-card">
+      <div class="service-detail-visual">
+        <div class="big-icon">🛡️</div>
+        <div class="main-icon">🛡️</div>
+      </div>
+      <div class="service-detail-body">
+        <div class="section-label">Service 02</div>
+        <h2>Paint Protection Film</h2>
+        <p>PPF (Paint Protection Film) is the ultimate invisible shield for your vehicle's paintwork. It absorbs impact from road debris, resists scratches and chemical stains, and features self-healing technology that removes minor swirl marks with heat.</p>
+        <p>We offer partial front-end kits and full-vehicle coverage, depending on your needs and budget.</p>
+        <div class="tag-list">
+          <span class="tag">Self-Healing</span>
+          <span class="tag">Full Vehicle</span>
+          <span class="tag">Front-End Kit</span>
+          <span class="tag">XPEL & 3M</span>
+        </div>
+        <br><a href="#" class="btn-primary" onclick="showPage('contact'); return false;" style="display:inline-block; margin-top:12px;">Get a Quote</a>
+      </div>
+    </div>
+
+    <div class="service-detail-card">
+      <div class="service-detail-visual">
+        <div class="big-icon">✨</div>
+        <div class="main-icon">✨</div>
+      </div>
+      <div class="service-detail-body">
+        <div class="section-label">Service 03</div>
+        <h2>Ceramic Coating</h2>
+        <p>Ceramic Pro coatings bond at a molecular level to your vehicle's paint, creating a permanent hydrophobic layer that repels water, dirt, and UV damage. Your car stays cleaner longer and retains its gloss for years.</p>
+        <p>We offer packages from entry-level Bronze to comprehensive Gold packages with full paint and glass coverage.</p>
+        <div class="tag-list">
+          <span class="tag">Ceramic Pro</span>
+          <span class="tag">Hydrophobic</span>
+          <span class="tag">UV Protection</span>
+          <span class="tag">Bronze–Gold Packages</span>
+        </div>
+        <br><a href="#" class="btn-primary" onclick="showPage('contact'); return false;" style="display:inline-block; margin-top:12px;">Get a Quote</a>
+      </div>
+    </div>
+
+    <div class="service-detail-card">
+      <div class="service-detail-visual">
+        <div class="big-icon">🪟</div>
+        <div class="main-icon">🪟</div>
+      </div>
+      <div class="service-detail-body">
+        <div class="section-label">Service 04</div>
+        <h2>Window Tinting</h2>
+        <p>Texas heat is no joke. Our ceramic window tints block up to 99% of UV rays, significantly reduce cabin heat, protect your interior from fading, and add a clean, polished look to any vehicle.</p>
+        <p>We carry nano-ceramic films from leading brands — compliant with Texas window tint laws in every grade we offer.</p>
+        <div class="tag-list">
+          <span class="tag">Ceramic Film</span>
+          <span class="tag">UV Blocking</span>
+          <span class="tag">Heat Rejection</span>
+          <span class="tag">Texas Compliant</span>
+        </div>
+        <br><a href="#" class="btn-primary" onclick="showPage('contact'); return false;" style="display:inline-block; margin-top:12px;">Get a Quote</a>
+      </div>
+    </div>
+
+    <div class="service-detail-card">
+      <div class="service-detail-visual">
+        <div class="big-icon">⚙️</div>
+        <div class="main-icon">⚙️</div>
+      </div>
+      <div class="service-detail-body">
+        <div class="section-label">Service 05</div>
+        <h2>Powder Coating</h2>
+        <p>Refresh or completely reimagine your wheels and brake calipers. Powder coating delivers a finish that's far more durable than paint — resistant to chips, corrosion, and the heat stress that brake calipers endure.</p>
+        <p>Choose from hundreds of standard RAL colors or custom-match to anything you have in mind.</p>
+        <div class="tag-list">
+          <span class="tag">Wheels</span>
+          <span class="tag">Brake Calipers</span>
+          <span class="tag">RAL Colors</span>
+          <span class="tag">Custom Match</span>
+        </div>
+        <br><a href="#" class="btn-primary" onclick="showPage('contact'); return false;" style="display:inline-block; margin-top:12px;">Get a Quote</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" onclick="showPage('home')" style="font-size:1.1rem;">
+          <span class="dot"></span> SafeWebsite Demo
+        </a>
+        <p>Houston's premier vehicle customization studio.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="#" onclick="showPage('services')">Vinyl Wraps</a></li>
+          <li><a href="#" onclick="showPage('services')">PPF</a></li>
+          <li><a href="#" onclick="showPage('services')">Ceramic Coating</a></li>
+          <li><a href="#" onclick="showPage('services')">Window Tinting</a></li>
+          <li><a href="#" onclick="showPage('services')">Powder Coating</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#" onclick="showPage('about')">About Us</a></li>
+          <li><a href="#" onclick="showPage('contact')">Contact</a></li>
+          <li><a href="#" onclick="showPage('contact')">Get a Quote</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Hours</h4>
+        <ul>
+          <li><a href="#">Mon–Fri: 10am–6pm</a></li>
+          <li><a href="#">Sat–Sun: Closed</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 SafeWebsite Demo.</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ══════════════════════ ABOUT PAGE ══════════════════════ -->
+<div class="page" id="page-about">
+
+  <div class="about-hero">
+    <div class="about-hero-bg"></div>
+    <div class="section-label">Our Story</div>
+    <h1>Passion for cars.<br><em>Obsession</em> with quality.</h1>
+    <p>We started as a small operation in Houston and grew into one of the city's most trusted vehicle customization studios — one satisfied customer at a time.</p>
+  </div>
+
+  <div class="about-content">
+    <div class="about-grid">
+      <div class="about-col">
+        <h2>Who We Are</h2>
+        <p>SafeWebsite Demo is a full-service vehicle protection and customization studio based in Houston, TX. We've been in business for over 8 years and have served more than 2,400 vehicles — from daily commuters to collector-grade exotics.</p>
+        <br>
+        <p>Our team of 12 certified installers works out of a climate-controlled facility equipped with everything needed to produce showroom-quality results. We don't rush jobs. We don't cut corners. Every vehicle gets treated like it's our own.</p>
+      </div>
+      <div class="about-col">
+        <h2>Our Mission</h2>
+        <p>We believe your vehicle should look exactly the way you want it to — and stay protected for years to come. That's why we only use manufacturer-backed products, stay certified with industry-leading brands, and invest in ongoing training for every member of our team.</p>
+        <br>
+        <p>When you bring your car to us, you're not just getting a service — you're getting a dedicated partner who cares about the outcome as much as you do.</p>
+      </div>
+    </div>
+
+    <div class="section-label">Our Values</div>
+    <div class="section-title" style="margin-bottom:40px;">What drives <em>everything we do</em></div>
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-number">01</div>
+        <h3>Precision</h3>
+        <p>Every cut, every panel, every edge — done right. No shortcuts, no exceptions.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-number">02</div>
+        <h3>Transparency</h3>
+        <p>Clear pricing, honest timelines, and straightforward communication from quote to pickup.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-number">03</div>
+        <h3>Quality</h3>
+        <p>We only carry brands we trust and back every job with our quality guarantee.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-number">04</div>
+        <h3>Community</h3>
+        <p>Houston built us. We give back through local car events, sponsorships, and partnerships.</p>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" onclick="showPage('home')" style="font-size:1.1rem;">
+          <span class="dot"></span> SafeWebsite Demo
+        </a>
+        <p>Houston's premier vehicle customization studio.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="#" onclick="showPage('services')">Vinyl Wraps</a></li>
+          <li><a href="#" onclick="showPage('services')">PPF</a></li>
+          <li><a href="#" onclick="showPage('services')">Ceramic Coating</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#" onclick="showPage('about')">About Us</a></li>
+          <li><a href="#" onclick="showPage('contact')">Contact</a></li>
+          <li><a href="#" onclick="showPage('contact')">Get a Quote</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Hours</h4>
+        <ul>
+          <li><a href="#">Mon–Fri: 10am–6pm</a></li>
+          <li><a href="#">Sat–Sun: Closed</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 SafeWebsite Demo.</span>
+    </div>
+  </footer>
+</div>
+
+<!-- ══════════════════════ CONTACT / QUOTE PAGE ══════════════════════ -->
+<div class="page" id="page-contact">
+
+  <div class="contact-layout">
+    <!-- Info Panel -->
+    <div class="contact-info-panel">
+      <div class="section-label">Let's Talk</div>
+      <h1>Get Your <em>Free Quote</em></h1>
+      <p>Fill out the form and our team will follow up within 1 business day with a detailed quote. No obligation, no pressure.</p>
+
+      <div class="info-block">
+        <div class="info-label">Phone</div>
+        <div class="info-value"><a href="tel:3463290087">(346) 329-0087</a></div>
+      </div>
+      <div class="info-block">
+        <div class="info-label">Email</div>
+        <div class="info-value"><a href="mailto:hello@safewebsite.com">hello@safewebsite.com</a></div>
+      </div>
+      <div class="info-block">
+        <div class="info-label">Address</div>
+        <div class="info-value">9405 Kerrwood Ln<br>Houston, TX 77080</div>
+      </div>
+      <div class="info-block">
+        <div class="info-label">Hours</div>
+        <div class="info-value">Mon–Fri: 10am–6pm<br>Sat–Sun: Closed</div>
+      </div>
+    </div>
+
+    <!-- Form Panel -->
+    <div class="contact-form-panel">
+      <h2>Request a Quote</h2>
+      <p>Tell us about your vehicle and what you're looking for.</p>
+
+      <form action="https://formspree.io/f/xpqoazpk" method="POST" id="quoteForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" name="first_name" placeholder="John" required>
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" name="last_name" placeholder="Doe" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" name="email" placeholder="john@example.com" required>
+        </div>
+
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" name="phone" placeholder="(713) 555-0100">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Vehicle Make & Model</label>
+            <input type="text" name="vehicle" placeholder="e.g. Toyota Camry" required>
+          </div>
+          <div class="form-group">
+            <label>Year</label>
+            <input type="text" name="year" placeholder="e.g. 2022">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Service Interested In</label>
+          <select name="service" required>
+            <option value="" disabled selected>Select a service...</option>
+            <option>Vinyl Wrap</option>
+            <option>Paint Protection Film (PPF)</option>
+            <option>Ceramic Coating</option>
+            <option>Window Tinting</option>
+            <option>Powder Coating</option>
+            <option>Multiple Services / Full Package</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Message / Additional Details</label>
+          <textarea name="message" placeholder="Tell us more about your project, color preferences, timeline, or any questions you have..."></textarea>
+        </div>
+
+        <button type="submit" class="form-submit">Send My Quote Request →</button>
+        <div class="success-msg" id="successMsg">
+          ✓ Your request has been sent! We'll be in touch within 1 business day.
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" onclick="showPage('home')" style="font-size:1.1rem;">
+          <span class="dot"></span> SafeWebsite Demo
+        </a>
+        <p>Houston's premier vehicle customization studio.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Services</h4>
+        <ul>
+          <li><a href="#" onclick="showPage('services')">Vinyl Wraps</a></li>
+          <li><a href="#" onclick="showPage('services')">PPF</a></li>
+          <li><a href="#" onclick="showPage('services')">Ceramic Coating</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#" onclick="showPage('about')">About Us</a></li>
+          <li><a href="#" onclick="showPage('contact')">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Hours</h4>
+        <ul>
+          <li><a href="#">Mon–Fri: 10am–6pm</a></li>
+          <li><a href="#">Sat–Sun: Closed</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 SafeWebsite Demo.</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    const navLink = document.getElementById('nav-' + name);
+    if (navLink) navLink.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return false;
+  }
+
+  function toggleMobile() {
+    document.getElementById('navMobile').classList.toggle('open');
+  }
+
+  // Handle form submission
+  const form = document.getElementById('quoteForm');
+  if (form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = form.querySelector('.form-submit');
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: new FormData(form),
+          headers: { 'Accept': 'application/json' }
+        });
+        if (res.ok) {
+          document.getElementById('successMsg').style.display = 'block';
+          form.reset();
+        } else {
+          btn.textContent = 'Something went wrong. Try again.';
+          btn.disabled = false;
+        }
+      } catch {
+        btn.textContent = 'Something went wrong. Try again.';
+        btn.disabled = false;
+      }
+    });
+  }
+</script>
+</body>
+</html>
